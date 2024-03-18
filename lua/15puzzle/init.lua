@@ -22,6 +22,7 @@ local Highlights = require("15puzzle.highlights")
 ---@field ns_id integer
 ---@field number_of_moves integer
 ---@field time number
+---@field timer uv_timer_t
 ---@field board table
 ---@field board_height integer
 ---@field board_width integer
@@ -32,6 +33,7 @@ local Highlights = require("15puzzle.highlights")
 ---@field _horizontal_padding integer
 ---@field _up_down_animation_interval number
 ---@field _left_right_animation_interval number
+---@field _timer_presision number
 local Puzzle = {}
 Puzzle.__index = Puzzle
 
@@ -72,6 +74,7 @@ function Puzzle.new()
         _horizontal_padding = 2,
         _up_down_animation_interval = 30,
         _left_right_animation_interval = nil,
+        _timer_presision = 100,
     }, Puzzle)
     self._left_right_animation_interval = self._up_down_animation_interval
         * (self._square_height + self._vertical_padding)
@@ -93,6 +96,7 @@ function Puzzle:setup(opts)
             error("15puzzle: command does not take arguments.")
         end
         self:create_window()
+        self:start_timer()
     end, { nargs = 0, desc = "Start 15puzzle game." })
 end
 
@@ -241,6 +245,7 @@ function Puzzle:create_autocmds()
         callback = function(ev)
             if tonumber(ev.match) == self.winnr then
                 vim.api.nvim_win_close(self.score_winnr, true)
+                self:stop_timer()
                 pcall(vim.api.nvim_del_augroup_by_id, grp)
             end
         end,
@@ -250,12 +255,34 @@ function Puzzle:create_autocmds()
         group = grp,
         callback = function(ev)
             if ev.event == "VimResized" or tonumber(ev.match) == self.winnr then
+                self:stop_timer()
                 self:close_window()
                 self:create_window()
+                self:start_timer()
             end
         end,
         desc = "React to resizing the vim/window",
     })
+end
+
+function Puzzle:start_timer()
+    self.timer = (vim.uv or vim.loop).new_timer()
+    self.timer:start(
+        0,
+        self._timer_presision,
+        vim.schedule_wrap(function()
+            self.time = self.time + self._timer_presision / 1000
+            self:update_score()
+        end)
+    )
+end
+
+function Puzzle:stop_timer()
+    if self.timer ~= nil then
+        self.timer:stop()
+        self.timer:close()
+        self.timer = nil
+    end
 end
 
 ---@param key string
@@ -380,6 +407,7 @@ function Puzzle:draw()
     end
 
     if self:game_over() then
+        self:stop_timer()
         self:set_scoreboard_buffer_text(
             string.format(
                 "You did it in %d moves! It took you %d seconds",
@@ -420,7 +448,7 @@ end
 
 function Puzzle:update_score()
     local moves_text = string.format(" Moves: %d", self.number_of_moves)
-    local time_text = string.format("Time: %d ", self.time)
+    local time_text = string.format("Time: %ds ", self.time)
     local width = vim.api.nvim_win_get_width(self.winnr)
     local sep = string.rep(" ", width - #moves_text - #time_text, "")
     vim.api.nvim_buf_set_lines(
@@ -541,6 +569,7 @@ function Puzzle:move_right()
 end
 
 function Puzzle:new_game()
+    self:stop_timer()
     self:generate_board()
     self.number_of_moves = 0
     self.time = 0

@@ -79,15 +79,16 @@ function Puzzle.new()
     self._left_right_animation_interval = self._up_down_animation_interval
         * (self._square_height + self._vertical_padding)
         / (self._square_width + self._horizontal_padding)
-    self:generate_board()
 
     return self
 end
 
+local puzzle = Puzzle.new()
+
 ---@param opts? Config
-function Puzzle:setup(opts)
+function Puzzle.setup(opts)
     opts = opts or {}
-    self.opts = vim.tbl_deep_extend("force", self.opts, opts)
+    puzzle.opts = vim.tbl_deep_extend("force", puzzle.opts, opts)
 
     math.randomseed(os.time())
     Highlights.set_theme()
@@ -95,8 +96,10 @@ function Puzzle:setup(opts)
         if #event.fargs > 0 then
             error("15puzzle: command does not take arguments.")
         end
-        self:create_window()
-        self:start_timer()
+        puzzle:close_window()
+        puzzle:generate_board()
+        puzzle:create_window()
+        puzzle:start_timer()
     end, { nargs = 0, desc = "Start 15puzzle game." })
 end
 
@@ -575,4 +578,4 @@ function Puzzle:new_game()
     self.time = 0
 end
 
-return Puzzle.new()
+return Puzzle

@@ -307,12 +307,10 @@ function Puzzle:set_keymaps()
         self:draw()
     end)
     map(keys.right, function()
-        self:move_right()
-        self:draw()
+        self:animate_right()
     end)
     map(keys.left, function()
-        self:move_left()
-        self:draw()
+        self:animate_left()
     end)
     map(keys.new_game, function()
         self:new_game()
@@ -339,7 +337,7 @@ function Puzzle:clear_buffer_text()
     local width = vim.api.nvim_win_get_width(self.winnr)
     local replacement = {}
     for _ = 1, height do
-        table.insert(replacement, string.rep(" ", width, ""))
+        table.insert(replacement, string.rep(" ", width))
     end
     vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, replacement)
 end
@@ -356,7 +354,7 @@ function Puzzle:draw()
     local current_row = self._vertical_padding
     local current_col = self._horizontal_padding
 
-    local outer_padding = string.rep(" ", self._horizontal_padding, "")
+    local outer_padding = string.rep(" ", self._horizontal_padding)
     for i = 1, self.board_height do
         local line = outer_padding
         for j = 1, self.board_width do
@@ -366,10 +364,10 @@ function Puzzle:draw()
             end
             local inner_padding_left, inner_padding_right
             if (self._square_width - #val) % 2 == 1 then
-                inner_padding_left = string.rep(" ", (self._square_width - #val - 1) / 2, "")
-                inner_padding_right = string.rep(" ", (self._square_width - #val + 1) / 2, "")
+                inner_padding_left = string.rep(" ", (self._square_width - #val - 1) / 2)
+                inner_padding_right = string.rep(" ", (self._square_width - #val + 1) / 2)
             else
-                inner_padding_left = string.rep(" ", (self._square_width - #val) / 2, "")
+                inner_padding_left = string.rep(" ", (self._square_width - #val) / 2)
                 inner_padding_right = inner_padding_left
             end
             line = string.format(
@@ -438,6 +436,9 @@ function Puzzle:draw_square(x, y, i, j)
         hl_grp = "PuzzleErr"
     end
     for k = 0, self._square_height - 1 do
+        local txt =
+            vim.api.nvim_buf_get_text(self.bufnr, y + k, x, y + k, x + self._square_width, {})
+        vim.api.nvim_buf_set_text(self.bufnr, y + k, x, y + k, x + self._square_width, txt)
         vim.api.nvim_buf_add_highlight(
             self.bufnr,
             self.ns_id,
@@ -453,7 +454,7 @@ function Puzzle:update_score()
     local moves_text = string.format(" Moves: %d", self.number_of_moves)
     local time_text = string.format("Time: %ds ", self.time)
     local width = vim.api.nvim_win_get_width(self.winnr)
-    local sep = string.rep(" ", width - #moves_text - #time_text, "")
+    local sep = string.rep(" ", width - #moves_text - #time_text)
     vim.api.nvim_buf_set_lines(
         self.score_bufnr,
         0,
@@ -467,7 +468,7 @@ end
 ---@param text string
 function Puzzle:set_scoreboard_buffer_text(text)
     local width = vim.api.nvim_win_get_width(self.score_winnr)
-    local half_sep = string.rep(" ", math.floor((width - #text) / 2), "")
+    local half_sep = string.rep(" ", math.floor((width - #text) / 2))
     vim.api.nvim_buf_set_lines(
         self.score_bufnr,
         0,
@@ -576,6 +577,56 @@ function Puzzle:new_game()
     self:generate_board()
     self.number_of_moves = 0
     self.time = 0
+end
+
+function Puzzle:animate_left()
+    local timer = (vim.uv or vim.loop).new_timer()
+    local steps = self._square_width + self._horizontal_padding
+    local i, j = self.empty_i, self.empty_j + 1
+    local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
+    local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    timer:start(
+        0,
+        self._left_right_animation_interval,
+        vim.schedule_wrap(function()
+            if steps == 0 then
+                timer:stop()
+                timer:close()
+                self:move_left()
+                self:draw()
+                return
+            end
+            x = x - 1
+            self:draw_square(x, y, i, j)
+
+            steps = steps - 1
+        end)
+    )
+end
+
+function Puzzle:animate_right()
+    local timer = (vim.uv or vim.loop).new_timer()
+    local steps = self._square_width + self._horizontal_padding
+    local i, j = self.empty_i, self.empty_j - 1
+    local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
+    local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    timer:start(
+        0,
+        self._left_right_animation_interval,
+        vim.schedule_wrap(function()
+            if steps == 0 then
+                timer:stop()
+                timer:close()
+                self:move_right()
+                self:draw()
+                return
+            end
+
+            x = x + 1
+            self:draw_square(x, y, i, j)
+            steps = steps - 1
+        end)
+    )
 end
 
 return Puzzle

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/NStefan002/15puzzle.nvim/compare/v1.2.0...v1.2.1) (2024-03-18)
+
+
+### Bug Fixes
+
+* **init:** proper setup function ([9125eb0](https://github.com/NStefan002/15puzzle.nvim/commit/9125eb0a6135205d9d91e45b7a8cb410865f3b3f))
+
 ## [1.2.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.1.0...v1.2.0) (2024-03-18)
 
 

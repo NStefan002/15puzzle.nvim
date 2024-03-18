@@ -1,3 +1,5 @@
+local Highlights = require("15puzzle.highlights")
+
 ---@class Config
 ---@field keys Keymap
 
@@ -9,6 +11,8 @@
 ---@field new_game string
 ---@field confirm string
 ---@field cancel string
+---@field next_theme string
+---@field prev_theme string
 
 ---@class Puzzle
 ---@field bufnr integer
@@ -57,6 +61,8 @@ function Puzzle.new()
                 new_game = "n",
                 confirm = "<CR>",
                 cancel = "<Esc>",
+                next_theme = "<c-l>",
+                prev_theme = "<c-h>",
             },
         },
 
@@ -81,7 +87,7 @@ function Puzzle:setup(opts)
     self.opts = vim.tbl_deep_extend("force", self.opts, opts)
 
     math.randomseed(os.time())
-    require("15puzzle.highlights").setup(self.ns_id)
+    Highlights.set_theme()
     vim.api.nvim_create_user_command("Play15puzzle", function(event)
         if #event.fargs > 0 then
             error("15puzzle: command does not take arguments.")
@@ -280,6 +286,14 @@ function Puzzle:set_keymaps()
     end)
     map(keys.new_game, function()
         self:new_game()
+        self:draw()
+    end)
+    map(keys.next_theme, function()
+        Highlights.next_theme()
+        self:draw()
+    end)
+    map(keys.prev_theme, function()
+        Highlights.prev_theme()
         self:draw()
     end)
 end

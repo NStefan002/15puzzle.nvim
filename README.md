@@ -45,6 +45,8 @@ use({
 -   `k` - move the squares up
 -   `l` - move the squares to the right
 -   `n` - new game
+-   `<c-l>` - next theme
+-   `<c-h>` - previous theme
 -   `<CR>` - confirm in menus
 -   `<Esc>` - cancel in menus
 
@@ -64,6 +66,8 @@ require("15puzzle").setup({
         new_game = "N",
         confirm = "y",
         cancel = "n",
+        next_theme = "<c-a>",
+        prev_theme = "<c-x>",
     },
 })
 ```

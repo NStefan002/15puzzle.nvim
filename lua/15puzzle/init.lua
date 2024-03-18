@@ -299,12 +299,10 @@ function Puzzle:set_keymaps()
 
     local keys = self.opts.keys
     map(keys.down, function()
-        self:move_down()
-        self:draw()
+        self:animate_down()
     end)
     map(keys.up, function()
-        self:move_up()
-        self:draw()
+        self:animate_up()
     end)
     map(keys.right, function()
         self:animate_right()
@@ -623,6 +621,56 @@ function Puzzle:animate_right()
             end
 
             x = x + 1
+            self:draw_square(x, y, i, j)
+            steps = steps - 1
+        end)
+    )
+end
+
+function Puzzle:animate_up()
+    local timer = (vim.uv or vim.loop).new_timer()
+    local steps = self._square_height + self._vertical_padding
+    local i, j = self.empty_i + 1, self.empty_j
+    local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
+    local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    timer:start(
+        0,
+        self._up_down_animation_interval,
+        vim.schedule_wrap(function()
+            if steps == 0 then
+                timer:stop()
+                timer:close()
+                self:move_up()
+                self:draw()
+                return
+            end
+
+            y = y - 1
+            self:draw_square(x, y, i, j)
+            steps = steps - 1
+        end)
+    )
+end
+
+function Puzzle:animate_down()
+    local timer = (vim.uv or vim.loop).new_timer()
+    local steps = self._square_height + self._vertical_padding
+    local i, j = self.empty_i - 1, self.empty_j
+    local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
+    local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    timer:start(
+        0,
+        self._up_down_animation_interval,
+        vim.schedule_wrap(function()
+            if steps == 0 then
+                timer:stop()
+                timer:close()
+                self:move_down()
+                self:draw()
+                return
+            end
+
+            y = y + 1
             self:draw_square(x, y, i, j)
             steps = steps - 1
         end)

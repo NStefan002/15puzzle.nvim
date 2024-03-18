@@ -61,6 +61,8 @@ CONTROLS                                    *15puzzle.nvim-15-puzzle-controls*
 - `k` - move the squares up
 - `l` - move the squares to the right
 - `n` - new game
+- `<c-l>` - next theme
+- `<c-h>` - previous theme
 - `<CR>` - confirm in menus
 - `<Esc>` - cancel in menus
 
@@ -78,6 +80,8 @@ You can change the default mappings. ~
             new_game = "N",
             confirm = "y",
             cancel = "n",
+            next_theme = "<c-a>",
+            prev_theme = "<c-x>",
         },
     })
 <

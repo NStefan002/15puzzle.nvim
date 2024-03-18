@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.1.0...v1.2.0) (2024-03-18)
+
+
+### Features
+
+* **timer:** implement timer ([d188406](https://github.com/NStefan002/15puzzle.nvim/commit/d18840648cf413219da67a1b535d8b9a248d98d5))
+
 ## [1.1.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.0.0...v1.1.0) (2024-03-18)
 
 

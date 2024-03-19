@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.2.1...v1.3.0) (2024-03-19)
+
+
+### Features
+
+* **animations:** animate up/down ([f2861a6](https://github.com/NStefan002/15puzzle.nvim/commit/f2861a62ec944f4647e8c8e5b1bf4e35438f0b5a))
+* **animations:** smooth animations ([a440672](https://github.com/NStefan002/15puzzle.nvim/commit/a44067202a19fb888550013636fa9d5ebc0b4ccb))
+
 ## [1.2.1](https://github.com/NStefan002/15puzzle.nvim/compare/v1.2.0...v1.2.1) (2024-03-18)
 
 

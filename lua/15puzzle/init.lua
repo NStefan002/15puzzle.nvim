@@ -578,6 +578,10 @@ function Puzzle:new_game()
 end
 
 function Puzzle:animate_left()
+    if self.empty_j == self.board_width then
+        return
+    end
+
     local timer = (vim.uv or vim.loop).new_timer()
     local steps = self._square_width + self._horizontal_padding
     local i, j = self.empty_i, self.empty_j + 1
@@ -596,6 +600,25 @@ function Puzzle:animate_left()
             end
             x = x - 1
             self:draw_square(x, y, i, j)
+            -- remove trailing highlights
+            for k = 0, self._square_height - 1 do
+                vim.api.nvim_buf_set_text(
+                    self.bufnr,
+                    y + k,
+                    x + self._square_width,
+                    y + k,
+                    x + self._square_width + 1,
+                    { " " }
+                )
+                vim.api.nvim_buf_add_highlight(
+                    self.bufnr,
+                    self.ns_id,
+                    "PuzzleBackground",
+                    y + k,
+                    x + self._square_width,
+                    x + self._square_width + 1
+                )
+            end
 
             steps = steps - 1
         end)
@@ -603,6 +626,10 @@ function Puzzle:animate_left()
 end
 
 function Puzzle:animate_right()
+    if self.empty_j == 1 then
+        return
+    end
+
     local timer = (vim.uv or vim.loop).new_timer()
     local steps = self._square_width + self._horizontal_padding
     local i, j = self.empty_i, self.empty_j - 1
@@ -622,12 +649,29 @@ function Puzzle:animate_right()
 
             x = x + 1
             self:draw_square(x, y, i, j)
+            -- remove trailing highlights
+            for k = 0, self._square_height - 1 do
+                vim.api.nvim_buf_set_text(self.bufnr, y + k, x - 1, y + k, x, { " " })
+                vim.api.nvim_buf_add_highlight(
+                    self.bufnr,
+                    self.ns_id,
+                    "PuzzleBackground",
+                    y + k,
+                    x - 1,
+                    x
+                )
+            end
+
             steps = steps - 1
         end)
     )
 end
 
 function Puzzle:animate_up()
+    if self.empty_i == self.board_height then
+        return
+    end
+
     local timer = (vim.uv or vim.loop).new_timer()
     local steps = self._square_height + self._vertical_padding
     local i, j = self.empty_i + 1, self.empty_j
@@ -647,12 +691,34 @@ function Puzzle:animate_up()
 
             y = y - 1
             self:draw_square(x, y, i, j)
+            -- remove trailing highlights
+            vim.api.nvim_buf_set_text(
+                self.bufnr,
+                y + self._square_height,
+                x,
+                y + self._square_height,
+                x + self._square_width,
+                { string.rep(" ", self._square_width) }
+            )
+            vim.api.nvim_buf_add_highlight(
+                self.bufnr,
+                self.ns_id,
+                "PuzzleBackground",
+                y + self._square_height,
+                x,
+                x + self._square_width
+            )
+
             steps = steps - 1
         end)
     )
 end
 
 function Puzzle:animate_down()
+    if self.empty_i == 1 then
+        return
+    end
+
     local timer = (vim.uv or vim.loop).new_timer()
     local steps = self._square_height + self._vertical_padding
     local i, j = self.empty_i - 1, self.empty_j
@@ -672,6 +738,24 @@ function Puzzle:animate_down()
 
             y = y + 1
             self:draw_square(x, y, i, j)
+            -- remove trailing highlights
+            vim.api.nvim_buf_set_text(
+                self.bufnr,
+                y - 1,
+                x,
+                y - 1,
+                x + self._square_width,
+                { string.rep(" ", self._square_width) }
+            )
+            vim.api.nvim_buf_add_highlight(
+                self.bufnr,
+                self.ns_id,
+                "PuzzleBackground",
+                y - 1,
+                x,
+                x + self._square_width
+            )
+
             steps = steps - 1
         end)
     )

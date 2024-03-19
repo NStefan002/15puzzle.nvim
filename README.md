@@ -4,6 +4,27 @@
 
 ## 📺 Showcase
 
+https://github.com/NStefan002/15puzzle.nvim/assets/100767853/d613555a-b603-490f-b24a-cb8ef89246a3
+
+### 🖼️ Gallery 
+
+<details>
+    <summary> Preview themes </summary>
+    
+![15P_theme1](https://github.com/NStefan002/15puzzle.nvim/assets/100767853/2e12ef24-7e22-49b5-b32e-d8cccece3295)
+
+![15P_theme2](https://github.com/NStefan002/15puzzle.nvim/assets/100767853/25c94aa8-5e83-407f-b2f7-6b6d48fa05f2)
+
+![15P_theme3](https://github.com/NStefan002/15puzzle.nvim/assets/100767853/cb1f738f-45be-4b42-bbad-958b80782780)
+
+![15P_theme4](https://github.com/NStefan002/15puzzle.nvim/assets/100767853/996cdbd8-5006-41a9-b8bc-0c7bbc2e340d)
+
+![15P_theme5](https://github.com/NStefan002/15puzzle.nvim/assets/100767853/3c0acfd1-06e3-4644-92b1-103907c37ce8)
+
+</details>
+
+
+
 ## 📋 Installation
 
 [lazy](https://github.com/folke/lazy.nvim):

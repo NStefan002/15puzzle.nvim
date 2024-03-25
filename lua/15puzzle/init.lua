@@ -23,7 +23,7 @@ local Highlights = require("15puzzle.highlights")
 ---@field number_of_moves integer
 ---@field time number
 ---@field timer uv_timer_t
----@field board table
+---@field board integer[][]
 ---@field board_height integer
 ---@field board_width integer
 ---@field opts Config
@@ -97,9 +97,9 @@ function Puzzle.setup(opts)
             error("15puzzle: command does not take arguments.")
         end
         puzzle:close_window()
-        puzzle:generate_board()
+        puzzle:new_game()
         puzzle:create_window()
-        puzzle:start_timer()
+        puzzle:draw()
     end, { nargs = 0, desc = "Start 15puzzle game." })
 end
 
@@ -111,18 +111,22 @@ function Puzzle:generate_board()
         end
     end
     self.board[self.board_height][self.board_width] = 0
-    local steps = 100
-    local empty_i, empty_j = self.board_height, self.board_width
-    while steps > 0 do
-        local moves = self:get_legal_moves(empty_i, empty_j)
+    self.empty_i, self.empty_j = self.board_height, self.board_width
+
+    local moves = { "up", "down", "left", "right" }
+    while self.number_of_moves < 100 do
         local move = moves[math.random(#moves)]
-        local new_i, new_j = move[1], move[2]
-        self.board[empty_i][empty_j], self.board[new_i][new_j] =
-            self.board[new_i][new_j], self.board[empty_i][empty_j]
-        empty_i, empty_j = new_i, new_j
-        steps = steps - 1
+        if move == "up" then
+            self:move_up()
+        elseif move == "down" then
+            self:move_down()
+        elseif move == "left" then
+            self:move_left()
+        elseif move == "right" then
+            self:move_right()
+        end
     end
-    self.empty_i, self.empty_j = empty_i, empty_j
+    self.number_of_moves = 0
 end
 
 function Puzzle:create_window()
@@ -174,7 +178,6 @@ function Puzzle:create_window()
     self:create_scoreboard_window()
     self:set_keymaps()
     self:create_autocmds()
-    self:draw()
 end
 
 function Puzzle:close_window()
@@ -510,26 +513,6 @@ function Puzzle:is_in_the_right_place(i, j)
     return self.board[i][j] == ((i - 1) * self.board_height + j) % mod
 end
 
----@param i integer idx in the board
----@param j integer idx in the board
----@return table<integer, integer>
-function Puzzle:get_legal_moves(i, j)
-    local moves = {}
-    if i > 1 then
-        table.insert(moves, { i - 1, j })
-    end
-    if i < self.board_height then
-        table.insert(moves, { i + 1, j })
-    end
-    if j > 1 then
-        table.insert(moves, { i, j - 1 })
-    end
-    if j < self.board_width then
-        table.insert(moves, { i, j + 1 })
-    end
-    return moves
-end
-
 function Puzzle:move_down()
     if self.empty_i == 1 then
         return
@@ -575,6 +558,7 @@ function Puzzle:new_game()
     self:generate_board()
     self.number_of_moves = 0
     self.time = 0
+    self:start_timer()
 end
 
 function Puzzle:animate_left()

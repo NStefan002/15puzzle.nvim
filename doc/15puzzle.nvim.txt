@@ -1,4 +1,4 @@
-*15puzzle.nvim.txt*       For Neovim >= 0.9.5       Last change: 2024 March 24
+*15puzzle.nvim.txt*       For Neovim >= 0.9.5       Last change: 2024 March 25
 
 ==============================================================================
 Table of Contents                            *15puzzle.nvim-table-of-contents*

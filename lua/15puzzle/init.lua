@@ -218,8 +218,6 @@ function Puzzle:create_scoreboard_window()
         relative = "win",
         win = self.winnr,
         anchor = "SW",
-        title = " Score ",
-        title_pos = "center",
         row = -1,
         col = -1,
         width = width,
@@ -505,18 +503,6 @@ function Puzzle:set_scoreboard_buffer_text(text)
         false,
         { string.format("%s%s%s", half_sep, text, half_sep) }
     )
-    vim.api.nvim_win_set_config(self.score_winnr, {
-        title = "",
-    })
-end
-
----call after the set_scoreboard_buffer_text function to undo it
-function Puzzle:reset_scoreboard_changes()
-    vim.api.nvim_win_set_config(self.score_winnr, {
-        title = " Score ",
-        title_pos = "center",
-    })
-    self:update_score()
 end
 
 ---@return boolean

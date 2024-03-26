@@ -434,7 +434,8 @@ function Puzzle:draw()
         )
 
         for j = 1, self.board_width do
-            self:draw_square(current_col, current_row, i, j)
+            local hl_grp = self:determine_square_hl_group(i, j)
+            self:draw_square(current_col, current_row, hl_grp)
             current_col = current_col + self._square_width + self._horizontal_padding
         end
         current_col = self._horizontal_padding
@@ -457,18 +458,8 @@ end
 ---draw square on the board
 ---@param x integer x coordinates of the top-left corner of the square
 ---@param y integer y coordinates of the top-left corner of the square
----@param i integer idx in the board
----@param j integer idx in the board
-function Puzzle:draw_square(x, y, i, j)
-    local hl_grp
-    local ok = self:is_in_the_right_place(i, j)
-    if self.board[i][j] == 0 then
-        hl_grp = "PuzzleEmpty"
-    elseif ok then
-        hl_grp = "PuzzleOk"
-    else
-        hl_grp = "PuzzleErr"
-    end
+---@param hl_grp string highlight group
+function Puzzle:draw_square(x, y, hl_grp)
     for k = 0, self._square_height - 1 do
         local txt =
             vim.api.nvim_buf_get_text(self.bufnr, y + k, x, y + k, x + self._square_width, {})
@@ -549,6 +540,19 @@ function Puzzle:is_in_the_right_place(i, j)
     return self.board[i][j] == ((i - 1) * self.board_height + j) % mod
 end
 
+---@param i integer idx in the board
+---@param j integer idx in the board
+---@return string
+function Puzzle:determine_square_hl_group(i, j)
+    if self.board[i][j] == 0 then
+        return "PuzzleEmpty"
+    end
+    if self:is_in_the_right_place(i, j) then
+        return "PuzzleOk"
+    end
+    return "PuzzleErr"
+end
+
 function Puzzle:move_down()
     if self.empty_i == 1 then
         return
@@ -607,6 +611,8 @@ function Puzzle:animate_left()
     local i, j = self.empty_i, self.empty_j + 1
     local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
     local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    local hl_grp = self:determine_square_hl_group(i, j)
+    self:move_left()
     timer:start(
         0,
         self._left_right_animation_interval,
@@ -614,12 +620,11 @@ function Puzzle:animate_left()
             if steps == 0 then
                 timer:stop()
                 timer:close()
-                self:move_left()
                 self:draw()
                 return
             end
             x = x - 1
-            self:draw_square(x, y, i, j)
+            self:draw_square(x, y, hl_grp)
             -- remove trailing highlights
             for k = 0, self._square_height - 1 do
                 vim.api.nvim_buf_set_text(
@@ -655,6 +660,8 @@ function Puzzle:animate_right()
     local i, j = self.empty_i, self.empty_j - 1
     local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
     local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    local hl_grp = self:determine_square_hl_group(i, j)
+    self:move_right()
     timer:start(
         0,
         self._left_right_animation_interval,
@@ -662,13 +669,12 @@ function Puzzle:animate_right()
             if steps == 0 then
                 timer:stop()
                 timer:close()
-                self:move_right()
                 self:draw()
                 return
             end
 
             x = x + 1
-            self:draw_square(x, y, i, j)
+            self:draw_square(x, y, hl_grp)
             -- remove trailing highlights
             for k = 0, self._square_height - 1 do
                 vim.api.nvim_buf_set_text(self.bufnr, y + k, x - 1, y + k, x, { " " })
@@ -697,6 +703,8 @@ function Puzzle:animate_up()
     local i, j = self.empty_i + 1, self.empty_j
     local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
     local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    local hl_grp = self:determine_square_hl_group(i, j)
+    self:move_up()
     timer:start(
         0,
         self._up_down_animation_interval,
@@ -704,13 +712,12 @@ function Puzzle:animate_up()
             if steps == 0 then
                 timer:stop()
                 timer:close()
-                self:move_up()
                 self:draw()
                 return
             end
 
             y = y - 1
-            self:draw_square(x, y, i, j)
+            self:draw_square(x, y, hl_grp)
             -- remove trailing highlights
             vim.api.nvim_buf_set_text(
                 self.bufnr,
@@ -744,6 +751,8 @@ function Puzzle:animate_down()
     local i, j = self.empty_i - 1, self.empty_j
     local x = (j - 1) * (self._square_width + self._horizontal_padding) + self._horizontal_padding
     local y = (i - 1) * (self._square_height + self._vertical_padding) + self._vertical_padding
+    local hl_grp = self:determine_square_hl_group(i, j)
+    self:move_down()
     timer:start(
         0,
         self._up_down_animation_interval,
@@ -751,13 +760,12 @@ function Puzzle:animate_down()
             if steps == 0 then
                 timer:stop()
                 timer:close()
-                self:move_down()
                 self:draw()
                 return
             end
 
             y = y + 1
-            self:draw_square(x, y, i, j)
+            self:draw_square(x, y, hl_grp)
             -- remove trailing highlights
             vim.api.nvim_buf_set_text(
                 self.bufnr,

@@ -477,7 +477,6 @@ function Puzzle:set_scoreboard_buffer_text(text)
         false,
         { string.format("%s%s%s", half_sep, text, half_sep) }
     )
-    vim.api.nvim_buf_add_highlight(self.score_bufnr, self.ns_id, "2048_Confirmation", 0, 0, -1)
     vim.api.nvim_win_set_config(self.score_winnr, {
         title = "",
     })

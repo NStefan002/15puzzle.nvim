@@ -33,7 +33,7 @@ local Highlights = require("15puzzle.highlights")
 ---@field _horizontal_padding integer
 ---@field _up_down_animation_interval number
 ---@field _left_right_animation_interval number
----@field _timer_presision number
+---@field _timer_precision number
 local Puzzle = {}
 Puzzle.__index = Puzzle
 
@@ -74,7 +74,7 @@ function Puzzle.new()
         _horizontal_padding = 2,
         _up_down_animation_interval = 30,
         _left_right_animation_interval = nil,
-        _timer_presision = 100,
+        _timer_precision = 100,
     }, Puzzle)
     self._left_right_animation_interval = self._up_down_animation_interval
         * (self._square_height + self._vertical_padding)
@@ -275,9 +275,9 @@ function Puzzle:start_timer()
     self.timer = (vim.uv or vim.loop).new_timer()
     self.timer:start(
         0,
-        self._timer_presision,
+        self._timer_precision,
         vim.schedule_wrap(function()
-            self.time = self.time + self._timer_presision / 1000
+            self.time = self.time + self._timer_precision / 1000
             self:update_score()
         end)
     )

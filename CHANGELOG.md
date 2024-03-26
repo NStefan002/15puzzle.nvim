@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/NStefan002/15puzzle.nvim/compare/v1.4.0...v1.4.1) (2024-03-26)
+
+
+### Bug Fixes
+
+* **animations:** animations are now properly shown when the user moves ([e1a78b3](https://github.com/NStefan002/15puzzle.nvim/commit/e1a78b34dcb7ed4b298d20a68dac0cba6f2b6313))
+
 ## [1.4.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.3.0...v1.4.0) (2024-03-26)
 
 

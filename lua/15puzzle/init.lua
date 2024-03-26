@@ -2,6 +2,7 @@ local Highlights = require("15puzzle.highlights")
 
 ---@class Config
 ---@field keys Keymap
+---@field solver_time_limit number in miliseconds
 
 ---@class Keymap
 ---@field up string
@@ -13,6 +14,7 @@ local Highlights = require("15puzzle.highlights")
 ---@field cancel string
 ---@field next_theme string
 ---@field prev_theme string
+---@field solve string
 
 ---@class Puzzle
 ---@field bufnr integer
@@ -26,6 +28,8 @@ local Highlights = require("15puzzle.highlights")
 ---@field board integer[][]
 ---@field board_height integer
 ---@field board_width integer
+---@field solver PuzzleSolver
+---@field solver_active boolean
 ---@field opts Config
 ---@field _square_height integer
 ---@field _square_width integer
@@ -33,6 +37,7 @@ local Highlights = require("15puzzle.highlights")
 ---@field _horizontal_padding integer
 ---@field _up_down_animation_interval number
 ---@field _left_right_animation_interval number
+---@field _solve_animation_interval number
 ---@field _timer_precision number
 local Puzzle = {}
 Puzzle.__index = Puzzle
@@ -54,6 +59,10 @@ function Puzzle.new()
         board_height = 4,
         board_width = 4,
 
+        -- initialize solver object and load solver module only if needed
+        solver = nil,
+        solver_active = false,
+
         opts = {
             keys = {
                 up = "k",
@@ -65,7 +74,9 @@ function Puzzle.new()
                 cancel = "<Esc>",
                 next_theme = "<c-l>",
                 prev_theme = "<c-h>",
+                solve = "s",
             },
+            solver_time_limit = 7000,
         },
 
         _square_height = 5,
@@ -74,6 +85,7 @@ function Puzzle.new()
         _horizontal_padding = 2,
         _up_down_animation_interval = 30,
         _left_right_animation_interval = nil,
+        _solve_animation_interval = 500,
         _timer_precision = 100,
     }, Puzzle)
     self._left_right_animation_interval = self._up_down_animation_interval
@@ -302,15 +314,27 @@ function Puzzle:set_keymaps()
 
     local keys = self.opts.keys
     map(keys.down, function()
+        if self.timer == nil then
+            self:start_timer()
+        end
         self:animate_down()
     end)
     map(keys.up, function()
+        if self.timer == nil then
+            self:start_timer()
+        end
         self:animate_up()
     end)
     map(keys.right, function()
+        if self.timer == nil then
+            self:start_timer()
+        end
         self:animate_right()
     end)
     map(keys.left, function()
+        if self.timer == nil then
+            self:start_timer()
+        end
         self:animate_left()
     end)
     map(keys.new_game, function()
@@ -324,6 +348,15 @@ function Puzzle:set_keymaps()
     map(keys.prev_theme, function()
         Highlights.prev_theme()
         self:draw()
+    end)
+    map(keys.solve, function()
+        self:stop_timer()
+        self.solver_active = true
+        self.solver = require("15puzzle.solver").new(self.board)
+        self:set_scoreboard_buffer_text("Solving...")
+        vim.schedule(function()
+            self:animate_solution()
+        end)
     end)
 end
 
@@ -408,7 +441,7 @@ function Puzzle:draw()
         current_row = current_row + self._square_height + self._vertical_padding
     end
 
-    if self:game_over() then
+    if self:game_over() and not self.solver_active then
         self:stop_timer()
         self:set_scoreboard_buffer_text(
             string.format(
@@ -452,6 +485,10 @@ function Puzzle:draw_square(x, y, i, j)
 end
 
 function Puzzle:update_score()
+    if self.solver_active then
+        return
+    end
+
     local moves_text = string.format(" Moves: %d", self.number_of_moves)
     local time_text = string.format("Time: %ds ", self.time)
     local width = vim.api.nvim_win_get_width(self.winnr)
@@ -557,7 +594,7 @@ function Puzzle:new_game()
     self:generate_board()
     self.number_of_moves = 0
     self.time = 0
-    self:start_timer()
+    self.solver_active = false
 end
 
 function Puzzle:animate_left()
@@ -740,6 +777,45 @@ function Puzzle:animate_down()
             )
 
             steps = steps - 1
+        end)
+    )
+end
+
+function Puzzle:animate_solution()
+    self.solver:solve(self.opts.solver_time_limit)
+    local path_to_solution = self.solver:get_moves()
+
+    if #path_to_solution == 0 then
+        self:set_scoreboard_buffer_text("Solver took too long to solve the puzzle, sorry!")
+        self.solver_active = false
+        return
+    end
+
+    local timer = (vim.uv or vim.loop).new_timer()
+    local i = 1
+    timer:start(
+        0,
+        self._solve_animation_interval,
+        vim.schedule_wrap(function()
+            if i > #path_to_solution then
+                timer:stop()
+                timer:close()
+                self.solver_active = false
+                return
+            end
+
+            local move = path_to_solution[i]
+            if move == "up" then
+                self:animate_up()
+            elseif move == "down" then
+                self:animate_down()
+            elseif move == "left" then
+                self:animate_left()
+            elseif move == "right" then
+                self:animate_right()
+            end
+
+            i = i + 1
         end)
     )
 end

@@ -5,6 +5,7 @@ Table of Contents                            *15puzzle.nvim-table-of-contents*
 
 1. 15 Puzzle                                         |15puzzle.nvim-15-puzzle|
   - Showcase                                |15puzzle.nvim-15-puzzle-showcase|
+  - News                                        |15puzzle.nvim-15-puzzle-news|
   - Installation                        |15puzzle.nvim-15-puzzle-installation|
   - How to Play                          |15puzzle.nvim-15-puzzle-how-to-play|
   - Controls                                |15puzzle.nvim-15-puzzle-controls|
@@ -24,6 +25,14 @@ https://github.com/NStefan002/15puzzle.nvim/assets/100767853/d613555a-b603-490f-
 GALLERY ~
 
 Preview themes ~
+
+
+NEWS                                            *15puzzle.nvim-15-puzzle-news*
+
+- **[26/03/2024]** A puzzle solver is now available. Press `s` (or the key you mapped to `solve`) and the solver will try to find
+    the **best** possible solution to the current puzzle state. If the solver does not find the solution in the
+    given time (see `solver_time_limit` option) it will exit and let you continue the game. However, if it finds
+    the solution quickly enough, it will start the animation that shows you the best moves to the solution.
 
 
 INSTALLATION                            *15puzzle.nvim-15-puzzle-installation*
@@ -69,6 +78,7 @@ CONTROLS                                    *15puzzle.nvim-15-puzzle-controls*
 - `k` - move the squares up
 - `l` - move the squares to the right
 - `n` - new game
+- `s` - activate the puzzle solver
 - `<c-l>` - next theme
 - `<c-h>` - previous theme
 - `<CR>` - confirm in menus
@@ -76,21 +86,25 @@ CONTROLS                                    *15puzzle.nvim-15-puzzle-controls*
 
 **NOTE:**
 
-You can change the default mappings. ~
+You can change the default mappings and some additional settings. ~
 
 >lua
     require("15puzzle").setup({
         keys = {
-            up = "<Up>",
-            down = "<Down>",
-            left = "<Left>",
-            right = "<Right>",
-            new_game = "N",
-            confirm = "y",
-            cancel = "n",
-            next_theme = "<c-a>",
-            prev_theme = "<c-x>",
+            up = "k",
+            down = "j",
+            left = "h",
+            right = "l",
+            new_game = "n",
+            confirm = "<CR>",
+            cancel = "<Esc>",
+            next_theme = "<c-l>",
+            prev_theme = "<c-h>",
+            solve = "s",
         },
+        -- additional settings
+    
+        solver_time_limit = 7000,
     })
 <
 

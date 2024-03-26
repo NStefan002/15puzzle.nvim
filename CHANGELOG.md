@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.3.0...v1.4.0) (2024-03-26)
+
+
+### Features
+
+* **solver:** implement puzzle solver ([a732ab9](https://github.com/NStefan002/15puzzle.nvim/commit/a732ab938f434736a7466f67a6df6ba10da2d15e))
+* **util:** add some helpful functions ([3d0204e](https://github.com/NStefan002/15puzzle.nvim/commit/3d0204eee4f189321e2689f45853bc5b0309ac4c))
+
+
+### Bug Fixes
+
+* **copy-pasta:** oops ([aed278e](https://github.com/NStefan002/15puzzle.nvim/commit/aed278e17d67c6bd74df828577b41bb169914165))
+* grammar ([137d4fd](https://github.com/NStefan002/15puzzle.nvim/commit/137d4fd6f2e88156c9e140d8172749fc20042e44))
+* **test/ci:** file name ([debc46b](https://github.com/NStefan002/15puzzle.nvim/commit/debc46b1a22411e01e7527d548acbe26f21ffa85))
+
 ## [1.3.0](https://github.com/NStefan002/15puzzle.nvim/compare/v1.2.1...v1.3.0) (2024-03-19)
 
 

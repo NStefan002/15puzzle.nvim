@@ -205,7 +205,6 @@ function Puzzle:close_window()
 
     self:close_scoreboard_window()
     pcall(vim.api.nvim_del_augroup_by_name, "15puzzle")
-    self.changed = false
 end
 
 function Puzzle:create_scoreboard_window()
